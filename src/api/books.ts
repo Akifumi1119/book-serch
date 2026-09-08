@@ -1,6 +1,6 @@
 import type { Book } from '@/types/book'
 
-const BASE_URL = 'http://localhost:8080/api/books'
+const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api/books`
 
 export async function fetchBookByIsbn(isbn: string): Promise<Book> {
   const response = await fetch(`${BASE_URL}/isbn/${isbn}`)
