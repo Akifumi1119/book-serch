@@ -20,7 +20,7 @@ defineProps<{ book: Book }>()
         </div>
         <div class="detail-row">
           <dt>出版年</dt>
-          <dd>{{ book.publishedDate || '不明' }}</dd>
+          <dd>{{ book.publishedDate || '不明' }}年</dd>
         </div>
         <div class="detail-row">
           <dt>ISBN</dt>

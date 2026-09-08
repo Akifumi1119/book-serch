@@ -48,7 +48,11 @@ function onFormSubmit() {
   <main class="page">
     <header class="page-header">
       <h1 class="page-title">書籍検索</h1>
-      <p class="page-subtitle">ISBNバーコードをスキャン、または手動で入力して書籍情報を取得します</p>
+      <p class="page-subtitle">
+        <span v-if="isMobile">ISBNバーコードをスキャン、または</span>
+        <span v-else>ISBNコードを</span>
+        手動で入力して書籍情報を取得します
+      </p>
     </header>
 
     <section v-if="isMobile" class="card">
@@ -221,5 +225,4 @@ function onFormSubmit() {
     transform: rotate(360deg);
   }
 }
-
 </style>
