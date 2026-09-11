@@ -1,54 +1,89 @@
-# frontend
+# 書籍検索アプリ（フロントエンド）
 
-This template should help get you started developing with Vue 3 in Vite.
+ISBNコードやキーワードで書籍情報を検索できるWebアプリケーションです。(フロント側)
 
-## Recommended IDE Setup
+## 機能
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- **ISBN検索** — ISBNコードを手動入力して書籍情報を取得
+- **バーコードスキャン** — モバイル端末のカメラでバーコードを読み取り、自動でISBN検索（スマートフォン・タブレット専用）
+- **フリーワード検索** — キーワード・タイトル・著者名・出版社で書籍を検索（ページネーション対応）
 
-## Recommended Browser Setup
+## 技術スタック
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+| カテゴリ | ライブラリ |
+|----------|------------|
+| フレームワーク | Vue 3 (Composition API) |
+| 言語 | TypeScript |
+| ビルドツール | Vite |
+| 状態管理 | Pinia |
+| ルーティング | Vue Router |
+| バーコード読み取り | @zxing/browser, @zxing/library |
+| テスト | Vitest, @vue/test-utils |
+| Lint / Format | ESLint, oxlint, Prettier |
 
-## Type Support for `.vue` Imports in TS
+## 必要環境
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+- Node.js `^22.18.0` または `>=24.12.0`
 
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
+## セットアップ
 
 ```sh
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+## 環境変数
+
+プロジェクトルートに `.env.local` を作成し、バックエンドAPIのベースURLを設定してください。
+
+```
+VITE_API_BASE_URL=http://localhost:8080
+```
+
+## 開発サーバー起動
 
 ```sh
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+## ビルド（本番用）
 
 ```sh
 npm run build
 ```
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+ビルド成果物は `dist/` ディレクトリに出力されます。
+
+## プレビュー（ビルド後の確認）
+
+```sh
+npm run preview
+```
+
+## テスト
 
 ```sh
 npm run test:unit
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+## Lint / フォーマット
 
 ```sh
+# Lint（自動修正あり）
 npm run lint
+
+# フォーマット
+npm run format
+```
+
+## ディレクトリ構成
+
+```
+src/
+├── api/          # バックエンドAPIとの通信処理
+├── components/   # 再利用可能なUIコンポーネント
+├── composables/  # Composition API ユーティリティ
+├── router/       # Vue Router 設定
+├── stores/       # Pinia ストア
+├── types/        # TypeScript 型定義
+└── views/        # ページ単位のビューコンポーネント
 ```

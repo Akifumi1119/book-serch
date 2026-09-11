@@ -7,9 +7,11 @@ import { useIsMobile } from '@/composables/useIsMobile'
 import type { Book } from '@/types/book'
 import type { BookSearchResponse } from '@/api/books'
 
+// UA判定でモバイルかどうかを取得し、バーコードスキャナーの表示切り替えに使用
 const isMobile = useIsMobile()
 
-// タブ切り替え
+// 検索モード
+// 'isbn': ISBNコード入力 / 'freeword': キーワード等による全文検索
 const searchMode = ref<'isbn' | 'freeword'>('isbn')
 
 // ISBN検索
@@ -17,15 +19,18 @@ const isbnInput = ref('')
 const isbnBook = ref<Book | null>(null)
 
 // フリーワード検索
+// searchType: APIに渡す検索対象フィールド名（クエリパラメータのキーと一致させる）
 const searchType = ref<'keyword' | 'title' | 'creator' | 'publisher'>('keyword')
 const searchInput = ref('')
 const searchResult = ref<BookSearchResponse | null>(null)
+// 1ページあたりの取得件数（バックエンドのデフォルトと合わせる）
 const PAGE_SIZE = 20
 
 // 共通
 const isLoading = ref(false)
 const errorMessage = ref('')
 
+// フリーワード検索の種別選択肢（<select> に渡す）
 const searchTypeOptions = [
   { value: 'keyword', label: 'キーワード' },
   { value: 'title', label: 'タイトル' },
@@ -33,6 +38,7 @@ const searchTypeOptions = [
   { value: 'publisher', label: '出版社' },
 ] as const
 
+// 選択中の検索種別に合わせてプレースホルダーを切り替える
 const searchTypePlaceholder = computed(() => {
   switch (searchType.value) {
     case 'title': return '例: Java入門'
@@ -42,15 +48,18 @@ const searchTypePlaceholder = computed(() => {
   }
 })
 
+// totalResults と PAGE_SIZE からページ総数を算出
 const totalPages = computed(() =>
   searchResult.value ? Math.ceil(searchResult.value.totalResults / PAGE_SIZE) : 0
 )
 
+// APIレスポンスの page は 0-indexed
 const currentPage = computed(() => searchResult.value?.page ?? 0)
 
 const hasPrev = computed(() => currentPage.value > 0)
 const hasNext = computed(() => currentPage.value < totalPages.value - 1)
 
+// タブ切り替え時に前の検索結果・エラーをリセット
 function switchMode(mode: 'isbn' | 'freeword') {
   searchMode.value = mode
   isbnBook.value = null
@@ -59,6 +68,7 @@ function switchMode(mode: 'isbn' | 'freeword') {
 }
 
 async function searchByIsbn(isbn: string) {
+  // ハイフン付きISBN（例: 978-4-297-13514-0）を正規化してからAPIへ送信
   const normalized = isbn.replace(/-/g, '').trim()
   if (!normalized) return
 
@@ -75,6 +85,7 @@ async function searchByIsbn(isbn: string) {
   }
 }
 
+// BarcodeScanner からスキャン成功時に呼ばれる。入力欄にも反映してUIを同期
 function onScanned(isbn: string) {
   isbnInput.value = isbn
   searchByIsbn(isbn)
@@ -88,6 +99,7 @@ function onIsbnSubmit() {
   searchByIsbn(isbnInput.value)
 }
 
+// ページ番号を引数で受け取ることでページネーション・初回検索を共通化
 async function runFreewordSearch(page: number) {
   const value = searchInput.value.trim()
   if (!value) return
@@ -97,6 +109,7 @@ async function runFreewordSearch(page: number) {
   errorMessage.value = ''
 
   try {
+    // searchType の値をそのままクエリパラメータのキーに使う（例: { title: "..." }）
     const result = await searchBooks({ [searchType.value]: value, page, size: PAGE_SIZE })
     if (result.totalResults === 0) {
       errorMessage.value = '該当する書籍が見つかりませんでした'
@@ -110,6 +123,7 @@ async function runFreewordSearch(page: number) {
   }
 }
 
+// フォーム送信時は常に先頭ページ（page=0）から取得
 function onFreewordSubmit() {
   runFreewordSearch(0)
 }
