@@ -1,7 +1,15 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { Book } from '@/types/book'
 
-defineProps<{ book: Book }>()
+const props = defineProps<{ book: Book }>()
+
+const details = computed(() => [
+  { label: '著者',   value: props.book.author || '不明' },
+  { label: '出版社', value: props.book.publisher || '不明' },
+  { label: '出版年', value: props.book.publishedDate ? `${props.book.publishedDate}年` : '不明' },
+  { label: 'ISBN',   value: props.book.isbn },
+])
 </script>
 
 <template>
@@ -10,21 +18,9 @@ defineProps<{ book: Book }>()
     <div class="info">
       <h2 class="title">{{ book.title }}</h2>
       <dl class="details">
-        <div class="detail-row">
-          <dt>著者</dt>
-          <dd>{{ book.author || '不明' }}</dd>
-        </div>
-        <div class="detail-row">
-          <dt>出版社</dt>
-          <dd>{{ book.publisher || '不明' }}</dd>
-        </div>
-        <div class="detail-row">
-          <dt>出版年</dt>
-          <dd>{{ book.publishedDate || '不明' }}年</dd>
-        </div>
-        <div class="detail-row">
-          <dt>ISBN</dt>
-          <dd>{{ book.isbn }}</dd>
+        <div v-for="detail in details" :key="detail.label" class="detail-row">
+          <dt>{{ detail.label }}</dt>
+          <dd>{{ detail.value }}</dd>
         </div>
       </dl>
       <a v-if="book.link" :href="book.link" target="_blank" rel="noopener noreferrer" class="link">
