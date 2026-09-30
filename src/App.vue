@@ -1,9 +1,9 @@
 <script setup lang="ts"></script>
 
 <template>
-  <RouterView v-slot="{ Component }">
+  <RouterView v-slot="{ Component, route }">
     <keep-alive include="BookSearchView">
-      <component :is="Component" />
+      <component :is="Component" :key="route.path" />
     </keep-alive>
   </RouterView>
 </template>

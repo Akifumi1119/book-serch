@@ -14,12 +14,19 @@ const details = computed(() => [
 ])
 
 function goToDetail() {
+  if (!props.book.isbn) return
   router.push({ name: 'book-detail', params: { isbn: props.book.isbn } })
 }
 </script>
 
 <template>
-  <div class="book-card" role="button" tabindex="0" @click="goToDetail" @keydown.enter="goToDetail">
+  <div
+    class="book-card"
+    :class="{ clickable: !!book.isbn }"
+    v-bind="book.isbn ? { role: 'button', tabindex: 0 } : {}"
+    @click="goToDetail"
+    @keydown.enter="goToDetail"
+  >
     <img v-if="book.thumbnailUrl" :src="book.thumbnailUrl" :alt="book.title" class="thumbnail" />
     <div class="info">
       <h2 class="title">{{ book.title }}</h2>
@@ -29,7 +36,15 @@ function goToDetail() {
           <dd>{{ detail.value }}</dd>
         </div>
       </dl>
-      <span class="link">詳細を見る →</span>
+      <span v-if="book.isbn" class="link">詳細を見る →</span>
+      <a
+        v-else-if="book.link"
+        :href="book.link"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="link"
+        @click.stop
+      >NDL書誌ページで見る →</a>
     </div>
   </div>
 </template>
@@ -43,11 +58,14 @@ function goToDetail() {
   border-radius: 10px;
   background: #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.book-card.clickable {
   cursor: pointer;
   transition: box-shadow 0.2s, border-color 0.2s;
 }
 
-.book-card:hover {
+.book-card.clickable:hover {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   border-color: #bee3f8;
 }

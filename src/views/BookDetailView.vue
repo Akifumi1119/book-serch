@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { fetchBookDetail, fetchBookByIsbn } from '@/api/books'
 import type { BookDetail } from '@/types/book'
@@ -15,6 +15,17 @@ const fallback = ref<Book | null>(null)
 const isLoading = ref(true)
 const errorMessage = ref('')
 
+function formatPublishedDate(raw: string): string {
+  if (raw.length === 8) {
+    return `${raw.slice(0, 4)}年${raw.slice(4, 6)}月${raw.slice(6, 8)}日`
+  }
+  return raw
+}
+
+const publishedDateLabel = computed(() =>
+  detail.value?.publishedDate ? formatPublishedDate(detail.value.publishedDate) : '不明',
+)
+
 onMounted(async () => {
   try {
     detail.value = await fetchBookDetail(isbn)
@@ -26,7 +37,8 @@ onMounted(async () => {
         errorMessage.value = '書籍情報が見つかりませんでした'
       }
     } else {
-      errorMessage.value = err instanceof Error ? err.message : '書籍詳細の取得中にエラーが発生しました'
+      errorMessage.value =
+        err instanceof Error ? err.message : '書籍詳細の取得中にエラーが発生しました'
     }
   } finally {
     isLoading.value = false
@@ -49,10 +61,6 @@ onMounted(async () => {
 
     <!-- openBD詳細情報あり -->
     <article v-else-if="detail" class="detail-card">
-      <div class="cover-area">
-        <img v-if="detail.cover" :src="detail.cover" :alt="detail.title" class="cover-img" />
-        <div v-else class="cover-placeholder">No Image</div>
-      </div>
       <div class="info">
         <h1 class="title">{{ detail.title }}</h1>
         <p v-if="detail.series" class="series">{{ detail.series }}</p>
@@ -66,8 +74,8 @@ onMounted(async () => {
             <dd>{{ detail.publisher || '不明' }}</dd>
           </div>
           <div class="meta-row">
-            <dt>出版年</dt>
-            <dd>{{ detail.publishedDate ? `${detail.publishedDate}年` : '不明' }}</dd>
+            <dt>出版日</dt>
+            <dd>{{ publishedDateLabel }}</dd>
           </div>
           <div class="meta-row">
             <dt>ISBN</dt>
@@ -78,7 +86,13 @@ onMounted(async () => {
           <h2 class="description-heading">内容紹介</h2>
           <p class="description">{{ detail.description }}</p>
         </section>
-        <a v-if="detail.link" :href="detail.link" target="_blank" rel="noopener noreferrer" class="ndl-link">
+        <a
+          v-if="detail.link"
+          :href="detail.link"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="ndl-link"
+        >
           NDL書誌ページで見る →
         </a>
       </div>
@@ -86,10 +100,6 @@ onMounted(async () => {
 
     <!-- openBD未登録のフォールバック -->
     <article v-else-if="fallback" class="detail-card">
-      <div class="cover-area">
-        <img v-if="fallback.thumbnailUrl" :src="fallback.thumbnailUrl" :alt="fallback.title" class="cover-img" />
-        <div v-else class="cover-placeholder">No Image</div>
-      </div>
       <div class="info">
         <h1 class="title">{{ fallback.title }}</h1>
         <dl class="meta">
@@ -111,7 +121,13 @@ onMounted(async () => {
           </div>
         </dl>
         <p class="no-detail-note">※ 詳細情報（表紙・内容紹介）は未登録です</p>
-        <a v-if="fallback.link" :href="fallback.link" target="_blank" rel="noopener noreferrer" class="ndl-link">
+        <a
+          v-if="fallback.link"
+          :href="fallback.link"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="ndl-link"
+        >
           NDL書誌ページで見る →
         </a>
       </div>
@@ -121,7 +137,7 @@ onMounted(async () => {
 
 <style scoped>
 .page {
-  max-width: 640px;
+  max-width: 75%;
   margin: 0 auto;
   padding: 24px 16px 48px;
   display: flex;
@@ -145,36 +161,11 @@ onMounted(async () => {
 }
 
 .detail-card {
-  display: flex;
-  gap: 24px;
   padding: 24px;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
   background: #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.cover-area {
-  flex-shrink: 0;
-}
-
-.cover-img {
-  width: 120px;
-  height: auto;
-  border-radius: 4px;
-  object-fit: cover;
-}
-
-.cover-placeholder {
-  width: 120px;
-  height: 170px;
-  background: #edf2f7;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #a0aec0;
-  font-size: 0.8rem;
 }
 
 .info {
@@ -298,21 +289,6 @@ onMounted(async () => {
 @keyframes spin {
   to {
     transform: rotate(360deg);
-  }
-}
-
-@media (max-width: 480px) {
-  .detail-card {
-    flex-direction: column;
-  }
-
-  .cover-img {
-    width: 100px;
-  }
-
-  .cover-placeholder {
-    width: 100px;
-    height: 140px;
   }
 }
 </style>
