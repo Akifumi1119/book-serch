@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 import type { Book } from '@/types/book'
 
 const props = defineProps<{ book: Book }>()
+const router = useRouter()
 
 const details = computed(() => [
   { label: '著者',   value: props.book.author || '不明' },
@@ -10,10 +12,14 @@ const details = computed(() => [
   { label: '出版年', value: props.book.publishedDate ? `${props.book.publishedDate}年` : '不明' },
   { label: 'ISBN',   value: props.book.isbn },
 ])
+
+function goToDetail() {
+  router.push({ name: 'book-detail', params: { isbn: props.book.isbn } })
+}
 </script>
 
 <template>
-  <div class="book-card">
+  <div class="book-card" role="button" tabindex="0" @click="goToDetail" @keydown.enter="goToDetail">
     <img v-if="book.thumbnailUrl" :src="book.thumbnailUrl" :alt="book.title" class="thumbnail" />
     <div class="info">
       <h2 class="title">{{ book.title }}</h2>
@@ -23,9 +29,7 @@ const details = computed(() => [
           <dd>{{ detail.value }}</dd>
         </div>
       </dl>
-      <a v-if="book.link" :href="book.link" target="_blank" rel="noopener noreferrer" class="link">
-        詳細を見る →
-      </a>
+      <span class="link">詳細を見る →</span>
     </div>
   </div>
 </template>
@@ -39,6 +43,13 @@ const details = computed(() => [
   border-radius: 10px;
   background: #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.book-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border-color: #bee3f8;
 }
 
 .thumbnail {

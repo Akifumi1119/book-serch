@@ -1,6 +1,17 @@
-import type { Book } from '@/types/book'
+import type { Book, BookDetail } from '@/types/book'
 
 const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api/books`
+
+export async function fetchBookDetail(isbn: string): Promise<BookDetail> {
+  const response = await fetch(`${BASE_URL}/detail?isbn=${isbn}`)
+  if (response.status === 404) {
+    throw new Error('NOT_FOUND')
+  }
+  if (!response.ok) {
+    throw new Error('書籍詳細の取得中にエラーが発生しました')
+  }
+  return response.json()
+}
 
 export async function fetchBookByIsbn(isbn: string): Promise<Book> {
   const response = await fetch(`${BASE_URL}/isbn/${isbn}`)

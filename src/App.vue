@@ -1,7 +1,11 @@
 <script setup lang="ts"></script>
 
 <template>
-  <RouterView />
+  <RouterView v-slot="{ Component }">
+    <keep-alive include="BookSearchView">
+      <component :is="Component" />
+    </keep-alive>
+  </RouterView>
 </template>
 
 <style>
